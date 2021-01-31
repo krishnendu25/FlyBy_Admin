@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Flyengine</string>
+    <string name="login">LOGIN</string>
+    <string name="owner_first_name">Owner First Name</string>
+    <string name="store_name_business_name">Store Name/Business Name</string>
+    <string name="owner_last_name">Owner Last Name</string>
+    <string name="mobile_number">Mobile Number</string>
+    <string name="whatsapp_number">Whatsapp Number</string>
+    <string name="email">Email</string>
+    <string name="images_on_your_post_will_appear_of_this_size">Images on your post will appear of this size.</string>
+    <string name="why_visit_store_reason_1">Why visit store - Reason 1</string>
+    <string name="why_visit_store_reason_2">Why visit store - Reason 2</string>
+    <string name="why_visit_store_reason_3">Why visit store - Reason 3</string>
+    <string name="store_address">Store Address</string>
+    <string name="custom_title">SELECT PICTURES</string>
+    <string name="default_directory">Pictures</string>
+    <string name="toolbar_title">Choice Image</string>
+    <string name="no_image">No Image Selected </string>
+    <string-array name="tab_titles">
+        <item>Camera</item>
+        <item>Gallery</item>
+    </string-array>
+    <string name="selected_image">Selected Image</string>
+    <string name="max_count_msg">A maximum of %1$d pictures allowed</string>
+    <string name="min_count_msg">you have to choice %1$d images</string>
+    <string name="focusing">focusing/flash...wait a minute</string>
+</resources>
