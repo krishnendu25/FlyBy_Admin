@@ -47,7 +47,7 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:allowBackup">
         <activity
-            android:name="com.flybyadmin.View.UI.DashBoard"
+            android:name="com.flybyadmin.View.UI.OnBoarding_Step_5"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.flybyadmin.View.UI.OnBoarding_Step_4"

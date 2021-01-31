@@ -24,9 +24,8 @@ interface StringUtils {
         var salePerson_userID:String = "salePerson_userID"
         var go_profilePic:String ="go_profilePic"
         var go_storeMedia:String ="go_storeMedia[]"
-
-
-
+        var go_accountType:String ="go_accountType"
+        var go_planname:String ="go_planname"
 
 
 

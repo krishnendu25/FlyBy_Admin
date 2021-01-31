@@ -212,6 +212,15 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
             allDetails3.getString(StringUtils.go_longitude)
         )
 
+        builder.addFormDataPart(
+            StringUtils.go_accountType,
+            allDetails3.getString(StringUtils.go_accountType)
+        )
+        builder.addFormDataPart(
+            StringUtils.go_planname,
+            allDetails3.getString(StringUtils.go_planname)
+        )
+
         builder.addFormDataPart(StringUtils.salePerson_userID, mPrefs!!.getString(StringUtils.userID, ""))
 
         val fileProfile = File(profilePictureList!!.get(0).loction_Path)

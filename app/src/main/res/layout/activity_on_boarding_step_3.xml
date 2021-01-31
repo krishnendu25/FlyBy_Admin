@@ -79,15 +79,50 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/manropebold"
-                    android:text="STEP 3 - Store Location"
+                    android:text="STEP 3 - Store Location &amp; Plan"
                     android:textColor="@color/light_green"
                     android:textSize="16sp" />
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/manropebold"
+                    android:text="Store Plan "
+                    android:layout_marginTop="@dimen/dimen_20dp"
+                    android:textColor="@color/white_off"
+                    android:textSize="16sp" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:id="@+id/selectPlan"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="Select Your Plan"
+                        android:textColorHint="@color/white_off"
+                        android:background="@drawable/edittext_bg"
+                        android:paddingStart="10dp"
+                        android:gravity="center|start"
+                        android:textColor="@color/white_off"
+                        android:textSize="16dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="20dp"
+                        android:rotation="90"
+                        android:src="@drawable/ic_nextgreen"/>
+
+                </RelativeLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/manropebold"
                     android:text="Store State "
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="@dimen/padding_10"
                     android:textColor="@color/white_off"
                     android:textSize="16sp" />
                 <RelativeLayout
@@ -117,6 +152,7 @@
                         android:src="@drawable/ic_nextgreen"/>
 
                 </RelativeLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -178,6 +214,7 @@
                     android:layout_marginTop="10dp"
                     android:textColor="@color/white_off"
                     android:textSize="16sp" />
+
 
             </LinearLayout>
         </ScrollView>

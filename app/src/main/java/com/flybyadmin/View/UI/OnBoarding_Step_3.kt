@@ -21,7 +21,6 @@ import com.flybyadmin.App
 import com.flybyadmin.Constant.Constants
 import com.flybyadmin.Model.CITY_MODEL
 import com.flybyadmin.Utils.CommentKeyBoardFix
-import com.flybyadmin.Utils.Loader.LocalModel
 import com.flybyadmin.Utils.Permissons
 import com.flybyadmin.Utils.StringUtils
 import com.flybyadmin.Utils.ToastUtils
@@ -37,12 +36,14 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
     var ACTIVITY_TITEL: TextView? = null
     var add_next_btn: Button? = null
     var state_ed: TextView? = null
+    var selectPlan: TextView? = null
     var addressTV: EditText? = null
     var getLatLong: TextView? = null
     var latitutd: TextView? = null
@@ -54,6 +55,8 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
     var allDetails2: JSONObject = JSONObject()
     var allDetails3: JSONObject = JSONObject()
     private val City_List: ArrayList<CITY_MODEL> = ArrayList<CITY_MODEL>()
+    var planNo = Arrays.asList("Only Listing", "Listing & Promotional Basic")
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,23 +72,30 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
         mContext=applicationContext
         mActivity=this@OnBoarding_Step_3
         CommentKeyBoardFix(mActivity!!)
-        ACTIVITY_TITEL = findViewById(R.id.ACTIVITY_TITEL);
+        ACTIVITY_TITEL = findViewById(R.id.ACTIVITY_TITEL)
         add_next_btn =  findViewById(R.id.add_next_btn)
         add_next_btn!!.setOnClickListener(this)
-        state_ed = findViewById(R.id.state_ed);
+        state_ed = findViewById(R.id.state_ed)
         state_ed!!.setOnClickListener(this)
-        addressTV =  findViewById(R.id.addressTV);
-        getLatLong = findViewById(R.id.getLatLong);
+        addressTV =  findViewById(R.id.addressTV)
+        getLatLong = findViewById(R.id.getLatLong)
         getLatLong!!.setOnClickListener(this)
-        latitutd = findViewById(R.id.latitutd);
-        longituted = findViewById(R.id.longituted);
-        nextLayout =  findViewById(R.id.nextLayout);
+        latitutd = findViewById(R.id.latitutd)
+        longituted = findViewById(R.id.longituted)
+        nextLayout =  findViewById(R.id.nextLayout)
         nextLayout!!.setOnClickListener(this)
+        selectPlan = findViewById(R.id.selectPlan)
+        selectPlan!!.setOnClickListener(this)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
     }
 
     override fun onClick(v: View?) {
         when(v!!.id){
+            R.id.selectPlan -> {
+                if (planNo.size > 0) {
+                    Show_plan_popup()
+                }
+            }
             R.id.nextLayout -> {
                 if (validation()) {
                     var intent: Intent = Intent(mContext, OnBoarding_Step_4::class.java)
@@ -111,7 +121,7 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
 
                         }
 
-                    });
+                    })
             }
             R.id.getLatLong -> {
                 if (checkLocationPermission()) {
@@ -119,8 +129,13 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
                         if (!mocklocation()) {
                             fusedLocationClient.lastLocation
                                 .addOnSuccessListener { location: Location? ->
-                                    latitutd!!.setText(location?.latitude.toString())
-                                    longituted!!.setText(location?.longitude.toString())
+                                    if (!location?.latitude.toString().equals("null") &&
+                                        !location?.longitude.toString().equals("null")){
+                                        latitutd!!.setText(location?.latitude.toString())
+                                        longituted!!.setText(location?.longitude.toString())
+                                    }else{
+                                        ToastUtils.shortToast("Please Try Again")
+                                    }
                                 }
                         }
                 }
@@ -179,17 +194,31 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
             return false
         }
         if (addressTV!!.text.toString().trim().isNullOrEmpty()) {
-            ToastUtils.shortToast("Please EnterAddress")
+            ToastUtils.shortToast("Please Enter Address")
             return false
         }
         if (latitutd!!.text.toString().trim().isNullOrEmpty() ||  longituted!!.text.toString().trim().isNullOrEmpty()) {
             ToastUtils.shortToast("Please Select Store Location")
             return false
         }
+        if (selectPlan!!.text.toString().trim().isNullOrEmpty()) {
+            ToastUtils.shortToast("Select One Plan")
+            return false
+        }
         allDetails3.put(StringUtils.go_state, state_ed!!.tag.toString().trim())
         allDetails3.put(StringUtils.go_address, addressTV!!.text.toString().trim())
         allDetails3.put(StringUtils.go_latitude, latitutd!!.text.toString().trim())
         allDetails3.put(StringUtils.go_longitude, longituted!!.text.toString().trim())
+
+        if (selectPlan!!.text.equals("1")){
+            allDetails3.put(StringUtils.go_accountType,"1")
+            allDetails3.put(StringUtils.go_planname, "0")
+        }
+        if (selectPlan!!.text.equals("2")) {
+            allDetails3.put(StringUtils.go_accountType, "2")
+            allDetails3.put(StringUtils.go_planname, "2")
+
+        }
 
         return true
     }
@@ -199,7 +228,7 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
         val requestCall: Call<ResponseBody> = App.instance!!.apiInterface!!.GetAllCity()
         requestCall.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-               
+
                 if (response.isSuccessful) {
                     try {
                         var jsonObject: JSONObject? = null
@@ -222,17 +251,17 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
                             }
                             Collections.reverse(City_List)
                         } else {
-                           
+
                         }
                     } catch (e: JSONException) {
                         e.printStackTrace()
-                       
+
                     }
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-               
+
             }
         })
     }
@@ -245,7 +274,7 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
         val popup = PopupWindow(this)
         popup.contentView = layout
         popup.width = state_ed!!.getWidth()
-        popup.height = 600
+        popup.height = 1000
         popup.isFocusable = true
         for (i in City_List.indices) {
             val params = LinearLayout.LayoutParams(
@@ -276,5 +305,46 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
         }
         popup.setBackgroundDrawable(BitmapDrawable())
         popup.showAsDropDown(state_ed)
+    }
+
+    private fun Show_plan_popup() {
+        val layoutInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val layout: View = layoutInflater.inflate(R.layout.popup_window_view, null, false)
+        val main_layout_seasonlist = layout.findViewById<LinearLayout>(R.id.main_layout_seasonlist)
+        // Creating the PopupWindow
+        val popup = PopupWindow(this)
+        popup.contentView = layout
+        popup.width = selectPlan!!.getWidth()
+        popup.height = 200
+        popup.isFocusable = true
+        for (i in planNo.indices) {
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(10, 10, 10, 10)
+            val tv = TextView(this)
+            tv.layoutParams = params
+            tv.setText(planNo[i].toString().toUpperCase())
+            val face = ResourcesCompat.getFont(mActivity!!, R.font.manroperegular)
+            tv.setTypeface(face)
+            tv.setTextColor(Color.parseColor("#EEEFF5"))
+            tv.gravity = View.TEXT_ALIGNMENT_TEXT_START
+            tv.setPadding(20, 10, 0, 0)
+            tv.textSize = 14f
+            tv.isFocusable = true
+            val finalI = i
+            tv.setOnClickListener {
+                selectPlan!!.setText(planNo[i].toString())
+                selectPlan!!.setTag(i+1)
+                popup.dismiss()
+            }
+            main_layout_seasonlist.addView(tv)
+        }
+        popup.setOnDismissListener { // TODO Auto-generated method stub
+            popup.dismiss()
+        }
+        popup.setBackgroundDrawable(BitmapDrawable())
+        popup.showAsDropDown(selectPlan)
     }
 }
