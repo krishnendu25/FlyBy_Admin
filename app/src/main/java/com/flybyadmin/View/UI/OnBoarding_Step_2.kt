@@ -51,6 +51,7 @@ class OnBoarding_Step_2 : AppCompatActivity() , View.OnClickListener{
         setContentView(R.layout.activity_on_boarding_step_2)
         allDetails = JSONObject(intent.getStringExtra(intent_one))
         iniView()
+
         hit_service()
     }
 
@@ -139,7 +140,7 @@ class OnBoarding_Step_2 : AppCompatActivity() , View.OnClickListener{
     }
 
 
-    private fun hit_service() {
+    private  fun hit_service() {
         val requestCall: Call<ResponseBody> = App.instance!!.apiInterface!!.getAllServices()
         requestCall.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {

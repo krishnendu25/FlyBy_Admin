@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1019499972514",
+    "project_id": "flybyadmin",
+    "storage_bucket": "flybyadmin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019499972514:android:280f3ff9bb2126e38bd4fb",
+        "android_client_info": {
+          "package_name": "com.flybyadmin.appusekotlin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1019499972514-7t53uflkojbm1on7ouh9epvrv2atbjhj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flybyadmin.appusekotlin",
+            "certificate_hash": "12f5c2fe533eb93549dd3a7b7cbc9e02ed9e63cd"
+          }
+        },
+        {
+          "client_id": "1019499972514-mqqpf7n16uib9qahh28g34kv2ae0qu4v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDryl35oCYkAbosrzkJU9bUEocGE8XWsLg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1019499972514-mqqpf7n16uib9qahh28g34kv2ae0qu4v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

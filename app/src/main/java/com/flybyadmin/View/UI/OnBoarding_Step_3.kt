@@ -210,11 +210,10 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
         allDetails3.put(StringUtils.go_latitude, latitutd!!.text.toString().trim())
         allDetails3.put(StringUtils.go_longitude, longituted!!.text.toString().trim())
 
-        if (selectPlan!!.text.equals("1")){
+        if (selectPlan!!.text.equals("Only Listing")){
             allDetails3.put(StringUtils.go_accountType,"1")
             allDetails3.put(StringUtils.go_planname, "0")
-        }
-        if (selectPlan!!.text.equals("2")) {
+        }else {
             allDetails3.put(StringUtils.go_accountType, "2")
             allDetails3.put(StringUtils.go_planname, "2")
 
@@ -336,7 +335,6 @@ class OnBoarding_Step_3 : AppCompatActivity() , View.OnClickListener{
             val finalI = i
             tv.setOnClickListener {
                 selectPlan!!.setText(planNo[i].toString())
-                selectPlan!!.setTag(i+1)
                 popup.dismiss()
             }
             main_layout_seasonlist.addView(tv)
