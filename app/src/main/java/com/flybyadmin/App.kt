@@ -4,9 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.os.Process
 import androidx.multidex.MultiDex
-import com.flybyadmin.hoori.controller.ApiClient
-import com.flybyadmin.hoori.controller.ApiInterface
-import retrofit2.create
+import com.flybyadmin.ServiceMannager.ApiClient
+import com.flybyadmin.ServiceMannager.ApiInterface
 import java.io.IOException
 
 

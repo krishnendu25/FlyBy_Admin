@@ -266,12 +266,14 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
 
             override fun onFailure(call: Call<RegistationModel?>?, t: Throwable?) {
                 ToastUtils.shortToast(call.toString())
+                LocalModel.instance!!.cancelProgressDialog()
+                newBoardingSuccessFull()
             }
         })
 
     }
     private fun hitUploadVideo(garageOwnerID: String) {
-        LocalModel.instance!!.showProgressDialog(mActivity, "Loading..")
+        LocalModel.instance!!.showProgressDialog(mActivity, "Video Uploading Please Wait..")
         val builder = MultipartBody.Builder()
         builder.setType(MultipartBody.FORM)
         builder.addFormDataPart(StringUtils.garageOwnerID, garageOwnerID)
@@ -295,12 +297,14 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                     LocalModel.instance!!.cancelProgressDialog()
                     newBoardingSuccessFull()
                 } else {
+                    newBoardingSuccessFull()
                     ToastUtils.shortToast(response.body()?.msg.toString())
                     LocalModel.instance!!.cancelProgressDialog()
                 }
             }
 
             override fun onFailure(call: Call<VideoUploadModel?>?, t: Throwable?) {
+                newBoardingSuccessFull()
                 ToastUtils.shortToast(call.toString())
             }
         })
@@ -329,11 +333,9 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                     for (i in 0 until image_uris.size) {
                         try {
                             val bmOptions = BitmapFactory.Options()
-                            val bitmap: Bitmap? = Constants.getResizedBitmap(
-                                BitmapFactory.decodeFile(
-                                    image_uris[i].path,
-                                    bmOptions
-                                )
+                            val bitmap: Bitmap? = BitmapFactory.decodeFile(
+                                image_uris[i].path,
+                                bmOptions
                             )
                             val mm = Media_Model(
                                 Constants.saveImagetoSDcard(bitmap!!, this@OnBoarding_Step_4)
@@ -357,12 +359,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                     for (i in 0 until image_uris.size) {
                         try {
                             val bmOptions = BitmapFactory.Options()
-                            bitmap = Constants.getResizedBitmap(
-                                BitmapFactory.decodeFile(
-                                    image_uris[i].path,
-                                    bmOptions
-                                )
-                            )
+                            bitmap =   BitmapFactory.decodeFile(image_uris[i].path, bmOptions)
                             val mm = Media_Model(
                                 Constants.saveImagetoSDcard(
                                     bitmap!!,
@@ -395,8 +392,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                     if (fileSizeInMB > 100) {
                         ToastUtils.shortToast("Maximum video size allowed is 100 mb")
                     } else {
-                    }
-                    try {
+                        try {
                         val filePath: String = file.getPath()
                         var bitmap = BitmapFactory.decodeFile(filePath)
                         val mm = Media_Model(
@@ -408,6 +404,8 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                     } catch (e: java.lang.Exception) {
                         e.printStackTrace()
                     }
+                    }
+
 
 
                 }
@@ -445,7 +443,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun newBoardingSuccessFull(){
-        Constants.showAlertDialog(
+        Constants.showAlertDialogG(
             mActivity,
             "Details sucessfully submitted for approval.",
             "Onboard New Store",
@@ -458,10 +456,6 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                 }
 
                 override fun doInNegativeClick() {
-                    var intent: Intent = Intent(mContext, OnBoarding_Step_1::class.java)
-                    intent.flags =
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
                 }
 
             })

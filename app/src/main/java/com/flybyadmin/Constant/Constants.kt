@@ -118,6 +118,26 @@ class Constants {
             alertDialog.setCanceledOnTouchOutside(false)
             alertDialog.show()
         }
+        fun showAlertDialogG(c: Context?, body: String?, title: String?, alertTask: AlertTask) {
+            val alertDialogBuilder: AlertDialog.Builder
+            alertDialogBuilder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                AlertDialog.Builder(c, R.style.Theme_Material_Dialog_Alert)
+            } else {
+                AlertDialog.Builder(c)
+            }
+            alertDialogBuilder.setTitle(title)
+            alertDialogBuilder.setMessage(body)
+            alertDialogBuilder.setCancelable(false)
+            alertDialogBuilder.setPositiveButton(
+                "OK"
+            ) { dialog, which ->
+                dialog.dismiss()
+                alertTask.doInPositiveClick()
+            }
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.setCanceledOnTouchOutside(false)
+            alertDialog.show()
+        }
 
         fun showImageTakeDialog(mActivity: Activity) {
 

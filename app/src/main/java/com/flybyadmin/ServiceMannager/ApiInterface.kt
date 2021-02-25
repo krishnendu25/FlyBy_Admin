@@ -1,4 +1,4 @@
-package com.flybyadmin.hoori.controller
+package com.flybyadmin.ServiceMannager
 
 import com.flybyadmin.Model.LoginModel
 import com.flybyadmin.Model.RegistationModel
