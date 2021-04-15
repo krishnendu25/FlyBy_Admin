@@ -10,15 +10,15 @@ android {
         applicationId "com.flybyadmin.appusekotlin"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 110
-        versionName "1.1.0"
+        versionCode 111
+        versionName "1.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
-            buildConfigField "String", "BASE_URL", '"http://flybyapp.in/flybyapp/"'
+            buildConfigField "String", "BASE_URL", '"http://flybyapp.dev/flybyapp/"'
         }
         release {
             buildConfigField "String", "BASE_URL", '"http://flybyapp.in/flybyapp/"'
@@ -78,6 +78,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-perf-ktx'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
+    implementation 'id.zelory:compressor:3.0.1'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3"
 }
 apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'com.google.firebase.firebase-perf'

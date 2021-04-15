@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
@@ -31,7 +33,11 @@ import com.flybyadmin.Utils.StringUtils.obj.go_storeMedia
 import com.flybyadmin.Utils.StringUtils.obj.go_storeVideo
 import com.flybyadmin.View.Interface.AlertTask
 import com.flybyadmin.appusekotlin.R
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.json.JSONObject
@@ -40,6 +46,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
 import java.util.*
+import java.util.concurrent.Executors
 
 
 class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
@@ -61,7 +68,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
     var profilePictureList: ArrayList<Media_Model>? = ArrayList<Media_Model>()
     var garagePictureList: ArrayList<Media_Model>? = ArrayList<Media_Model>()
     var videoList: ArrayList<Media_Model>? = ArrayList<Media_Model>()
-    var mPrefs: Prefs?=null
+    var mPrefs: Prefs? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_on_boarding_step_4)
@@ -81,7 +88,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
         mContext = applicationContext
         mActivity = this@OnBoarding_Step_4
         CommentKeyBoardFix(mActivity!!)
-        mPrefs= Prefs(mContext!!)
+        mPrefs = Prefs(mContext!!)
         ACTIVITY_TITEL = findViewById(R.id.ACTIVITY_TITEL)
         add_next_btn = findViewById(R.id.add_next_btn)
         add_next_btn!!.setOnClickListener(this)
@@ -132,7 +139,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
             }
             R.id.uploadGaragePictures -> {
 
-                selectPicture(15, AppConstants.MULTIPLE_GARAGE_PICTURE)
+                selectPicture(5, AppConstants.MULTIPLE_GARAGE_PICTURE)
 
             }
             R.id.uploadGarageVideo -> {
@@ -221,57 +228,104 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
             allDetails3.getString(StringUtils.go_planname)
         )
 
-        builder.addFormDataPart(StringUtils.salePerson_userID, mPrefs!!.getString(StringUtils.userID, ""))
+        builder.addFormDataPart(
+            StringUtils.salePerson_userID,
+            mPrefs!!.getString(StringUtils.userID, "")!!
+        )
 
         val fileProfile = File(profilePictureList!!.get(0).loction_Path)
         builder.addFormDataPart(
             go_profilePic, fileProfile.getName(), RequestBody.create(
-                MediaType.parse(
-                    "multipart/form-data"
-                ), fileProfile
+                "multipart/form-data"
+                    .toMediaTypeOrNull(), fileProfile
             )
         )
+
         for (i in 0 until garagePictureList!!.size) {
             val file = File(garagePictureList!!.get(i).loction_Path)
-            builder.addFormDataPart(
-                go_storeMedia, file.getName(), RequestBody.create(
-                    MediaType.parse(
+                builder.addFormDataPart(
+                    go_storeMedia, System.currentTimeMillis().toString()+".jpg", RequestBody.create(
                         "multipart/form-data"
-                    ), file
+                            .toMediaTypeOrNull(), file
+                    )
                 )
-            )
         }
         val requestBody = builder.build()
-        val call: Call<RegistationModel> =  App.instance!!.apiInterface!!.Registation(requestBody)
+        val call: Call<RegistationModel> = App.instance!!.apiInterface!!.Registation(requestBody)
         call.enqueue(object : Callback<RegistationModel?> {
             override fun onResponse(
                 call: Call<RegistationModel?>?,
                 response: Response<RegistationModel?>
             ) {
                 LocalModel.instance!!.cancelProgressDialog()
-                if (response.body()?.Status.equals("true", true)) {
-                    if (videoList!!.size != 0) {
-                        hitUploadVideo(response.body()?.garageOwnerID!!)
-                        ToastUtils.longToast(response.body()?.msg.toString())
+                if (response.code()==200){
+                    if (response.body()?.Status.equals("true", true)) {
+                        if (videoList!!.size != 0) {
+                            hitUploadVideo(response.body()?.garageOwnerID!!)
+                            ToastUtils.longToast(response.body()?.msg.toString())
+                        } else {
+                            ToastUtils.longToast(response.body()?.msg.toString())
+                            LocalModel.instance!!.cancelProgressDialog()
+                            newBoardingSuccessFull()
+                        }
                     } else {
-                        ToastUtils.longToast(response.body()?.msg.toString())
+                        ToastUtils.shortToast(response.body()?.msg.toString())
                         LocalModel.instance!!.cancelProgressDialog()
-                        newBoardingSuccessFull()
                     }
-                } else {
-                    ToastUtils.shortToast(response.body()?.msg.toString())
-                    LocalModel.instance!!.cancelProgressDialog()
+                }else if (response.code()==500){
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        "500 Internal Server Error",
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
+                }else if (response.code()==400){
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        "400 Bad Request",
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
+                }else
+                {
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        response.message(),
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
                 }
+
+
+
+
+
+
             }
 
             override fun onFailure(call: Call<RegistationModel?>?, t: Throwable?) {
-                ToastUtils.shortToast(call.toString())
                 LocalModel.instance!!.cancelProgressDialog()
-                newBoardingSuccessFull()
+                //   newBoardingSuccessFull()
             }
         })
 
     }
+
     private fun hitUploadVideo(garageOwnerID: String) {
         LocalModel.instance!!.showProgressDialog(mActivity, "Video Uploading Please Wait..")
         val builder = MultipartBody.Builder()
@@ -280,26 +334,65 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
         val fileProfile = File(videoList!!.get(0).loction_Path)
         builder.addFormDataPart(
             go_storeVideo, fileProfile.getName(), RequestBody.create(
-                MediaType.parse(
-                    "multipart/form-data"
-                ), fileProfile
+                "multipart/form-data"
+                    .toMediaTypeOrNull(), fileProfile
             )
         )
         val requestBody = builder.build()
-        val call: Call<VideoUploadModel> =  App.instance!!.apiInterface!!.UploadVideo(requestBody)
+        val call: Call<VideoUploadModel> = App.instance!!.apiInterface!!.UploadVideo(requestBody)
         call.enqueue(object : Callback<VideoUploadModel?> {
             override fun onResponse(
                 call: Call<VideoUploadModel?>?,
                 response: Response<VideoUploadModel?>
             ) {
                 LocalModel.instance!!.cancelProgressDialog()
-                if (response.body()?.Status.equals("true", true)) {
-                    LocalModel.instance!!.cancelProgressDialog()
-                    newBoardingSuccessFull()
-                } else {
-                    newBoardingSuccessFull()
-                    ToastUtils.shortToast(response.body()?.msg.toString())
-                    LocalModel.instance!!.cancelProgressDialog()
+
+                if (response.code()==200){
+                    if (response.body()?.Status.equals("true", true)) {
+                        LocalModel.instance!!.cancelProgressDialog()
+                        newBoardingSuccessFull()
+                    } else {
+                        newBoardingSuccessFull()
+                        ToastUtils.shortToast(response.body()?.msg.toString())
+                        LocalModel.instance!!.cancelProgressDialog()
+                    }
+                }else if (response.code()==500){
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        "500 Internal Server Error",
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
+                }else if (response.code()==400){
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        "400 Bad Request",
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
+                }else
+                {
+                    Constants.showAlertDialogG(
+                        mActivity,
+                        response.message(),
+                        "Error",
+                        object : AlertTask {
+                            override fun doInPositiveClick() {
+                            }
+                            override fun doInNegativeClick() {
+                            }
+
+                        })
                 }
             }
 
@@ -353,28 +446,34 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                 }
                 AppConstants.MULTIPLE_GARAGE_PICTURE -> {
                     var bitmap: Bitmap? = null
-                    var image_uris: ArrayList<Uri> =
-                        data!!.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS)
-                    garagePictureList!!.clear()
-                    for (i in 0 until image_uris.size) {
-                        try {
-                            val bmOptions = BitmapFactory.Options()
-                            bitmap =   BitmapFactory.decodeFile(image_uris[i].path, bmOptions)
-                            val mm = Media_Model(
-                                Constants.saveImagetoSDcard(
-                                    bitmap!!,
-                                    this@OnBoarding_Step_4
-                                ).toString(), "IMAGE"
-                            )
-                            garagePictureList!!.add(mm)
-                        } catch (e: java.lang.Exception) {
-                            e.printStackTrace()
+                    LocalModel.instance!!.showProgressDialog(mActivity, "Loading..")
+                    val executor = Executors.newSingleThreadExecutor()
+                    val handler = Handler(Looper.getMainLooper())
+                    executor.execute {
+                        var image_uris: ArrayList<Uri> =
+                            data!!.getParcelableArrayListExtra(ImagePickerActivity.EXTRA_IMAGE_URIS)
+                        garagePictureList!!.clear()
+                        for (i in 0 until image_uris.size) {
+                            try {
+                                val bmOptions = BitmapFactory.Options()
+                                bitmap = BitmapFactory.decodeFile(image_uris[i].path, bmOptions)
+                                val mm = Media_Model(
+                                    Constants.saveImagetoSDcard(
+                                        bitmap!!,
+                                        this@OnBoarding_Step_4
+                                    ).toString(), "IMAGE"
+                                )
+                                garagePictureList!!.add(mm)
+                            } catch (e: java.lang.Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                        handler.post {
+                            LocalModel.instance!!.cancelProgressDialog()
+                            setMediaConfig(bitmap!!, 2)
                         }
                     }
-                    setMediaConfig(bitmap!!, 2)
-
                 }
-
 
                 AppConstants.VIDEO_FOR_GARAGE -> {
                     var selectedVideosPathsList =
@@ -393,19 +492,18 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
                         ToastUtils.shortToast("Maximum video size allowed is 100 mb")
                     } else {
                         try {
-                        val filePath: String = file.getPath()
-                        var bitmap = BitmapFactory.decodeFile(filePath)
-                        val mm = Media_Model(
-                            selectedVideosPathsList[0].toString(), "VIDEO"
-                        )
-                        videoList!!.add(mm)
+                            val filePath: String = file.getPath()
+                            var bitmap = BitmapFactory.decodeFile(filePath)
+                            val mm = Media_Model(
+                                selectedVideosPathsList[0].toString(), "VIDEO"
+                            )
+                            videoList!!.add(mm)
 
-                        setMediaConfig(bitmapt!!, 3)
-                    } catch (e: java.lang.Exception) {
-                        e.printStackTrace()
+                            setMediaConfig(bitmapt!!, 3)
+                        } catch (e: java.lang.Exception) {
+                            e.printStackTrace()
+                        }
                     }
-                    }
-
 
 
                 }
@@ -416,7 +514,7 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setMediaConfig(garagePictureList8: Bitmap, i: Int) {
-        when(i){
+        when (i) {
             1 -> {
                 profilePicture!!.setImageBitmap(garagePictureList8)
             }
@@ -432,17 +530,17 @@ class OnBoarding_Step_4 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun validation(): Boolean {
-        if (profilePictureList!!.size==0){
+        if (profilePictureList!!.size == 0) {
             ToastUtils.shortToast("Please Select Garage Logo")
             return false
-        }else if (garagePictureList!!.size==0){
+        } else if (garagePictureList!!.size == 0) {
             ToastUtils.shortToast("Please Select Garage Image")
             return false
         }
         return true
     }
 
-    private fun newBoardingSuccessFull(){
+    private fun newBoardingSuccessFull() {
         Constants.showAlertDialogG(
             mActivity,
             "Details sucessfully submitted for approval.",

@@ -185,7 +185,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/manroperegular"
-                                android:text="Upload Image [Maximum 15 Images]"
+                                android:text="Upload Image [Maximum 5 Images]"
                                 android:layout_marginTop="5dp"
                                 android:textColor="@color/white_off"
                                 android:textSize="14dp" />

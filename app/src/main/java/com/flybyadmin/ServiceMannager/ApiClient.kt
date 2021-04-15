@@ -1,29 +1,37 @@
 package com.flybyadmin.ServiceMannager
-import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
-
 
 
 class ApiClient {
 
     companion object Factory {
+
+
         private var retrofit: Retrofit? = null
 
-        fun getRetrofit(): Retrofit? {
-            if (retrofit == null) {
+        private val timeout = 600000 //change this value if you need more time.
 
+
+        fun getRetrofit(): Retrofit? {
+            val interceptor = HttpLoggingInterceptor()
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+            val client =
+                OkHttpClient.Builder().connectTimeout(timeout.toLong(), TimeUnit.MILLISECONDS)
+                    .addInterceptor(interceptor).build()
+            if (retrofit == null) {
                 retrofit = Retrofit.Builder()
                     .baseUrl(URLConstants.BASE_URL_API)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+                    .client(client)
+                    .build()
             }
             return retrofit
         }
 
     }
-
 }
+
